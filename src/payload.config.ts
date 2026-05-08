@@ -58,8 +58,12 @@ export default buildConfig({
     }),
   ],
 
-  // Allow requests from the Expo app (LAN in dev, Vercel URL in prod)
-  cors: [process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'].filter(Boolean),
+  // Allow browser (localhost) + mobile Expo app (LAN IP) + production
+  cors: [
+    'http://localhost:3000',
+    process.env.NEXT_PUBLIC_SERVER_URL,
+    process.env.LAN_URL,         // optional: set to http://192.168.x.x:3000 in .env for Expo
+  ].filter(Boolean) as string[],
 
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000',
 
