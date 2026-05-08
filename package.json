@@ -1,0 +1,37 @@
+{
+  "name": "promy",
+  "version": "1.0.0",
+  "description": "Promy — Proximity Marketing CMS Backend",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "generate:types": "payload generate:types",
+    "payload": "cross-env PAYLOAD_CONFIG_PATH=src/payload.config.ts payload"
+  },
+  "dependencies": {
+    "@payloadcms/db-postgres": "^3.33.0",
+    "@payloadcms/next": "^3.33.0",
+    "@payloadcms/richtext-lexical": "^3.33.0",
+    "@payloadcms/storage-vercel-blob": "^3.84.1",
+    "graphql": "^16.9.0",
+    "next": "^15.3.1",
+    "payload": "^3.33.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sharp": "0.32.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "cross-env": "^7.0.3",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18.20.2"
+  }
+}
