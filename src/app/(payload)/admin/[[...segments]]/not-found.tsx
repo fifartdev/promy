@@ -1,8 +1,6 @@
 import { NotFoundPage } from '@payloadcms/next/views'
 import config from '@payload-config'
-import type { ImportMap } from 'payload'
-
-const importMap: ImportMap = {}
+import { importMap } from '../importMap.js'
 
 type Args = {
   params: Promise<{ segments: string[] }>
