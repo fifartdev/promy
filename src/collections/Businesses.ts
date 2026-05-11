@@ -28,6 +28,20 @@ export const Businesses: CollectionConfig = {
   hooks: {
     beforeChange: [
       ({ data, req, operation, originalDoc }) => {
+        // Normalize comma decimal separators (e.g. Greek locale: "37,946" → 37.946)
+        if (data.location) {
+          const coord = (val: unknown): number | undefined => {
+            if (typeof val === 'number' && !isNaN(val)) return val
+            if (typeof val === 'string') {
+              const parsed = parseFloat(val.replace(',', '.'))
+              return isNaN(parsed) ? undefined : parsed
+            }
+            return undefined
+          }
+          if (data.location.latitude !== undefined) data.location.latitude = coord(data.location.latitude)
+          if (data.location.longitude !== undefined) data.location.longitude = coord(data.location.longitude)
+        }
+
         // Auto-generate slug on create
         if (operation === 'create' && data.name && !data.slug) {
           data.slug = toSlug(data.name)
@@ -44,8 +58,8 @@ export const Businesses: CollectionConfig = {
             throw new Error('Unauthorized: you can only update your own business')
           }
 
-          // Strip everything except the promo group from the incoming payload
-          return { promo: data.promo }
+          // Merge promo onto the existing document so required fields stay intact
+          return { ...originalDoc, promo: data.promo }
         }
 
         return data
