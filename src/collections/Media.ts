@@ -1,9 +1,5 @@
 import type { CollectionConfig } from 'payload'
 import path from 'path'
-import { fileURLToPath } from 'url'
-
-const filename = fileURLToPath(import.meta.url)
-const dirname = path.dirname(filename)
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -17,8 +13,10 @@ export const Media: CollectionConfig = {
     delete: ({ req: { user } }) => user?.role === 'superadmin',
   },
   upload: {
-    // Local dev fallback — overridden by vercelBlobStorage plugin in production
-    staticDir: path.resolve(dirname, '../../public/media'),
+    // process.cwd() always resolves to the project root regardless of how
+    // Next.js compiles and runs the file, avoiding import.meta.url path drift.
+    staticDir: path.resolve(process.cwd(), 'public/media'),
+    staticURL: '/media',
     imageSizes: [
       {
         name: 'thumbnail',
@@ -40,7 +38,6 @@ export const Media: CollectionConfig = {
     {
       name: 'alt',
       type: 'text',
-      required: true,
     },
   ],
 }

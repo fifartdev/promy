@@ -21,6 +21,13 @@ export const Businesses: CollectionConfig = {
       if (!user) return false
       if (user.role === 'superadmin') return true
       if (user.role === 'business-admin') return true
+      if (user.role === 'business-manager') {
+        const id =
+          typeof user.business === 'object'
+            ? (user.business as { id: number })?.id
+            : user.business
+        return { id: { equals: id } }
+      }
       return false
     },
     delete: ({ req: { user } }) => user?.role === 'superadmin',
@@ -38,8 +45,10 @@ export const Businesses: CollectionConfig = {
             }
             return undefined
           }
-          if (data.location.latitude !== undefined) data.location.latitude = coord(data.location.latitude)
-          if (data.location.longitude !== undefined) data.location.longitude = coord(data.location.longitude)
+          if (data.location.latitude !== undefined)
+            data.location.latitude = coord(data.location.latitude)
+          if (data.location.longitude !== undefined)
+            data.location.longitude = coord(data.location.longitude)
         }
 
         // Auto-generate slug on create
@@ -47,19 +56,22 @@ export const Businesses: CollectionConfig = {
           data.slug = toSlug(data.name)
         }
 
-        // Business admins can only update promo fields on their own business
-        if (req.user?.role === 'business-admin' && operation === 'update') {
+        // Business managers can edit all fields of their own business only
+        if (req.user?.role === 'business-manager' && operation === 'update') {
           const userBusinessId =
             typeof req.user.business === 'object'
-              ? (req.user.business as { id: string })?.id
+              ? (req.user.business as { id: number })?.id
               : req.user.business
 
-          if (userBusinessId !== originalDoc?.id) {
+          if (String(userBusinessId) !== String(originalDoc?.id)) {
             throw new Error('Unauthorized: you can only update your own business')
           }
+          return data
+        }
 
-          // Merge promo onto the existing document so required fields stay intact
-          return { ...originalDoc, promo: data.promo }
+        // Business admins can edit any business, all fields
+        if (req.user?.role === 'business-admin' && operation === 'update') {
+          return data
         }
 
         return data
@@ -136,9 +148,18 @@ export const Businesses: CollectionConfig = {
       name: 'location',
       type: 'group',
       admin: {
-        description: 'Used by the mobile app to create a 25-meter geofence',
+        description: 'Click the map to place a pin — latitude and longitude fill automatically',
       },
       fields: [
+        {
+          type: 'ui',
+          name: 'locationPicker',
+          admin: {
+            components: {
+              Field: '@/components/LocationPickerField#LocationPickerField',
+            },
+          },
+        },
         {
           name: 'latitude',
           type: 'number',
@@ -158,9 +179,6 @@ export const Businesses: CollectionConfig = {
     {
       name: 'promo',
       type: 'group',
-      admin: {
-        description: 'Business Admins can only edit fields in this section',
-      },
       fields: [
         {
           name: 'promoImage',

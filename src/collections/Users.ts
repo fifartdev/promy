@@ -10,13 +10,13 @@ export const Users: CollectionConfig = {
   access: {
     read: ({ req: { user } }) => {
       if (!user) return false
-      if (user.role === 'superadmin') return true
+      if (user.role === 'superadmin' || user.role === 'business-admin') return true
       return { id: { equals: user.id } }
     },
     create: ({ req: { user } }) => user?.role === 'superadmin',
     update: ({ req: { user } }) => {
       if (!user) return false
-      if (user.role === 'superadmin') return true
+      if (user.role === 'superadmin' || user.role === 'business-admin') return true
       return { id: { equals: user.id } }
     },
     delete: ({ req: { user } }) => user?.role === 'superadmin',
@@ -26,11 +26,12 @@ export const Users: CollectionConfig = {
       name: 'role',
       type: 'select',
       required: true,
-      defaultValue: 'business-admin',
+      defaultValue: 'business-manager',
       saveToJWT: true,
       options: [
         { label: 'Super Admin', value: 'superadmin' },
         { label: 'Business Admin', value: 'business-admin' },
+        { label: 'Business Manager', value: 'business-manager' },
       ],
     },
     {
@@ -39,8 +40,9 @@ export const Users: CollectionConfig = {
       relationTo: 'businesses',
       saveToJWT: true,
       admin: {
-        condition: (data) => data.role === 'business-admin',
-        description: 'The business this admin manages (Business Admin only)',
+        condition: (data) =>
+          data.role === 'business-admin' || data.role === 'business-manager',
+        description: 'The business this user manages',
       },
     },
   ],
