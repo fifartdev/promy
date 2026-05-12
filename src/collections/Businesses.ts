@@ -175,6 +175,37 @@ export const Businesses: CollectionConfig = {
       ],
     },
 
+    // ── Notification Assets ────────────────────────────────────────────────────
+    {
+      name: 'notification',
+      type: 'group',
+      admin: {
+        description: 'Assets used in proximity push notifications',
+      },
+      fields: [
+        {
+          name: 'notificationIcon',
+          label: 'Android Notification Icon',
+          type: 'upload',
+          relationTo: 'media',
+          admin: {
+            description:
+              'Must be monochrome — black icon on a transparent background — for the Android status bar to render it correctly',
+          },
+        },
+        {
+          name: 'notificationBanner',
+          label: 'Notification Banner',
+          type: 'upload',
+          relationTo: 'media',
+          admin: {
+            description:
+              'Full-colour banner shown inside the notification body. On iOS this expands on long-press. Falls back to the promo image, then the business logo.',
+          },
+        },
+      ],
+    },
+
     // ── Promo ──────────────────────────────────────────────────────────────────
     {
       name: 'promo',
