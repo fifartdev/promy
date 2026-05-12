@@ -52,26 +52,30 @@ export function LocationPickerField() {
         maxZoom: 19,
       }).addTo(map)
 
+      function addDraggableMarker(markerLat: number, markerLng: number) {
+        markerRef.current = L.marker([markerLat, markerLng], { draggable: true }).addTo(map)
+        markerRef.current.on('dragend', () => {
+          const pos = markerRef.current!.getLatLng()
+          skipSyncRef.current = true
+          setLat(Math.round(pos.lat * 1_000_000) / 1_000_000)
+          setLng(Math.round(pos.lng * 1_000_000) / 1_000_000)
+        })
+      }
+
       function placeMarker(clickLat: number, clickLng: number) {
         if (markerRef.current) {
           markerRef.current.setLatLng([clickLat, clickLng])
         } else {
-          markerRef.current = L.marker([clickLat, clickLng], { draggable: true }).addTo(map)
-          markerRef.current.on('dragend', () => {
-            const pos = markerRef.current!.getLatLng()
-            skipSyncRef.current = true
-            setLat(Math.round(pos.lat * 1_000_000) / 1_000_000)
-            setLng(Math.round(pos.lng * 1_000_000) / 1_000_000)
-          })
+          addDraggableMarker(clickLat, clickLng)
         }
         skipSyncRef.current = true
         setLat(Math.round(clickLat * 1_000_000) / 1_000_000)
         setLng(Math.round(clickLng * 1_000_000) / 1_000_000)
       }
 
-      // If a pin already exists, show it
+      // If a pin already exists, show it WITHOUT touching form fields (avoids dirty-on-load)
       if (typeof lat === 'number' && typeof lng === 'number' && !isNaN(lat) && !isNaN(lng)) {
-        placeMarker(lat, lng)
+        addDraggableMarker(lat, lng)
       }
 
       map.on('click', (e) => {
